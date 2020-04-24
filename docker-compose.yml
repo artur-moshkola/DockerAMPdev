@@ -1,0 +1,43 @@
+version: "3"
+ 
+services:
+ 
+    nginx:
+        image: nginx
+        volumes:
+            - ./docker/nginx/:/etc/nginx/conf.d/
+        networks:
+            - front
+            - backend
+        ports:
+            - "8081:80"
+ 
+    apache:
+        build: ./docker/apache
+        volumes:
+            - ${PROJ}:/var/www/html
+            - ./docker/apache/php.ini:/usr/local/etc/php/php.ini
+            - ./logs:/var/logs/external
+        networks:
+            - backend
+ 
+    db:
+        image: "mysql:5.6"
+        volumes:
+            - ./docker/db:/var/lib/mysql
+        environment:
+               MYSQL_ROOT_PASSWORD: root
+               MYSQL_DATABASE: local
+               MYSQL_USER: local
+               MYSQL_PASSWORD: local
+        networks:
+            - backend
+            - front
+        ports:
+            - "3306:3306"
+ 
+networks:
+    front:
+        external:
+            name: front
+    backend:
